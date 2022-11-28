@@ -7,13 +7,13 @@ import com.cinema.utils.mvi.UiState
 import com.cinema.repository.MediaModel
 
 class HomeContract {
+
+    //event - when user click on item or other action
     @Immutable
     sealed class HomeScreenEvent : UiEvent {
         object IDLE : HomeScreenEvent()
         object Loading : HomeScreenEvent()
-        class Success(val data: List<MediaModel>) : HomeScreenEvent()
         class OpenScreenDetails(val movieId: Long) : HomeScreenEvent()
-        object FinishState : HomeScreenEvent()
         object MovieTabClicked : HomeScreenEvent()
         object SerialsTabClicked : HomeScreenEvent()
     }
@@ -22,14 +22,17 @@ class HomeContract {
         val homeScreenState: HomeScreenState
     ) : UiState
 
+
+    // screen state
     @Immutable
     sealed class HomeScreenState {
         object Loading : HomeScreenState()
         object Idle : HomeScreenState()
-        data class SuccessMovie(val data: List<MediaModel>) : HomeScreenState()
-        data class SuccessSerials(val data: List<MediaModel>) : HomeScreenState()
+        data class ShowMovieList(val mediaModel:List<MediaModel>):HomeScreenState()
+        data class ShowSerialsList(val mediaModel: List<MediaModel>):HomeScreenState()
     }
 
+    // effect - side effect action should be use one time
     sealed class Effect : UiEffect {
         object ShowToast : Effect()
     }

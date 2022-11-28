@@ -18,8 +18,8 @@ class HomeViewModel @Inject constructor(
     private val serialsTrendingUseCase: SerialsTrendingUseCase
 ) : BaseViewModel<HomeContract.HomeScreenEvent, HomeContract.State>() {
 
-    private val movieList:MutableStateFlow<List<MediaModel>> = MutableStateFlow(emptyList())
-    private val serialsList:MutableStateFlow<List<MediaModel>> = MutableStateFlow(emptyList())
+    private val movieList: MutableStateFlow<List<MediaModel>> = MutableStateFlow(emptyList())
+    private val serialsList: MutableStateFlow<List<MediaModel>> = MutableStateFlow(emptyList())
 
     init {
         setEvent(HomeContract.HomeScreenEvent.IDLE)
@@ -35,15 +35,23 @@ class HomeViewModel @Inject constructor(
     override fun handleEvent(event: HomeContract.HomeScreenEvent) {
         when (event) {
             is HomeContract.HomeScreenEvent.IDLE -> {
-                loadData()
+                setLoadDataState()
             }
             is HomeContract.HomeScreenEvent.Loading -> {
-
+                if (movieList.value.isNotEmpty()) {
+                    setState {
+                        currentState.copy(
+                            homeScreenState = HomeContract.HomeScreenState.ShowMovieList(
+                                movieList.value
+                            )
+                        )
+                    }
+                }
             }
             is HomeContract.HomeScreenEvent.SerialsTabClicked -> {
                 setState {
                     currentState.copy(
-                        homeScreenState = HomeContract.HomeScreenState.SuccessMovie(
+                        homeScreenState = HomeContract.HomeScreenState.ShowSerialsList(
                             serialsList.value
                         )
                     )
@@ -52,7 +60,7 @@ class HomeViewModel @Inject constructor(
             is HomeContract.HomeScreenEvent.MovieTabClicked -> {
                 setState {
                     currentState.copy(
-                        homeScreenState = HomeContract.HomeScreenState.SuccessMovie(
+                        homeScreenState = HomeContract.HomeScreenState.ShowMovieList(
                             movieList.value
                         )
                     )
@@ -70,16 +78,16 @@ class HomeViewModel @Inject constructor(
 
     private fun loadSerialsList() {
         launch {
-                makeSerialsResponse()
+            makeSerialsResponse()
         }
     }
 
-    private fun makeSerialsResponse(){
+    private fun makeSerialsResponse() {
         launch {
             serialsTrendingUseCase.invoke().collect {
                 when (it.status) {
                     Status.SUCCESS -> {
-                      serialsList.value = it.data!!
+                        serialsList.value = it.data!!
                     }
                     Status.ERROR -> {
 
@@ -94,17 +102,24 @@ class HomeViewModel @Inject constructor(
 
     private fun loadMovieList() {
         launch {
-            if(movieList.value.isEmpty()){
+            if (movieList.value.isEmpty()) {
                 makeMovieResponse()
             }
         }
     }
 
-    private suspend fun makeMovieResponse(){
+    private suspend fun makeMovieResponse() {
         trendingUseCase.invoke().collect {
             when (it.status) {
                 Status.SUCCESS -> {
-                   movieList.value = it.data!!
+                    movieList.value = it.data!!
+                    setState {
+                        currentState.copy(
+                            homeScreenState = HomeContract.HomeScreenState.ShowMovieList(
+                                movieList.value
+                            )
+                        )
+                    }
                 }
                 Status.ERROR -> {
 
@@ -116,7 +131,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun loadData() {
+    private fun setLoadDataState() {
         setEvent(HomeContract.HomeScreenEvent.Loading)
     }
 

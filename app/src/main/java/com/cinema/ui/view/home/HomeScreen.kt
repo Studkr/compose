@@ -2,7 +2,10 @@ package com.cinema.ui.view.home
 
 import android.annotation.SuppressLint
 import android.util.Log
+import androidx.annotation.DrawableRes
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
@@ -10,9 +13,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
+import androidx.compose.material.R
+import androidx.compose.material.SnackbarDefaults.backgroundColor
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -50,15 +56,25 @@ fun HomeScreen(
         }
         else -> {}
     }
-    Box {
-        Scaffold(
-            backgroundColor = Color.Black
-        ) { v ->
-            Column(modifier = Modifier.padding(v)) {
-                CombinedTab(viewModel, state = state)
-            }
+    Scaffold(
+        backgroundColor = Color.Black,
+        topBar = { com.cinema.compose.TopAppBar(navController = navController, topImage = com.cinema.R.drawable.ic_baseline_home_24) }
+    ) { v ->
+        Column(modifier = Modifier.padding(v)) {
+             CombinedTab(viewModel, state = state)
+//            when (state.homeScreenState) {
+//                is HomeContract.HomeScreenState.ShowMovieList -> {
+//                    MovieList(list = (state.homeScreenState as HomeContract.HomeScreenState.ShowMovieList).mediaModel)
+//                }
+//                is HomeContract.HomeScreenState.ShowSerialsList -> {
+//                    MovieList(list = (state.homeScreenState as HomeContract.HomeScreenState.ShowSerialsList).mediaModel)
+//                }
+//                else -> {}
+//
+//            }
         }
     }
+
 }
 
 
@@ -71,8 +87,11 @@ fun CombinedTab(viewModel: HomeViewModel, state: HomeContract.State) {
     )
     val tabIndex = pagerState.currentPage
     val coroutineScope = rememberCoroutineScope()
-    Column {
+    Column{
         TabRow(
+            backgroundColor = Color.Gray,
+            modifier = Modifier
+                .clip(shape = RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp)),
             selectedTabIndex = tabIndex,
             indicator = { tabPositions ->
                 TabRowDefaults.Indicator(
@@ -86,8 +105,8 @@ fun CombinedTab(viewModel: HomeViewModel, state: HomeContract.State) {
                         pagerState.animateScrollToPage(index)
                     }
                 }, text = {
-                    Text(text = pair.tabName)
-                }
+                    Text(text = pair.tabName, modifier = Modifier.padding(12.dp))
+                }, selectedContentColor = Color.White, unselectedContentColor = Color.LightGray
                 )
             }
         }
@@ -104,11 +123,11 @@ fun CombinedTab(viewModel: HomeViewModel, state: HomeContract.State) {
             }
 
             when (state.homeScreenState) {
-                is HomeContract.HomeScreenState.SuccessMovie -> {
-                    MovieList(list = (state.homeScreenState as HomeContract.HomeScreenState.SuccessMovie).data)
+                is HomeContract.HomeScreenState.ShowMovieList -> {
+                    MovieList(list = (state.homeScreenState as HomeContract.HomeScreenState.ShowMovieList).mediaModel)
                 }
-                is HomeContract.HomeScreenState.SuccessSerials -> {
-                    MovieList(list = (state.homeScreenState as HomeContract.HomeScreenState.SuccessSerials).data)
+                is HomeContract.HomeScreenState.ShowSerialsList -> {
+                    MovieList(list = (state.homeScreenState as HomeContract.HomeScreenState.ShowSerialsList).mediaModel)
                 }
                 else -> {}
             }
@@ -174,6 +193,9 @@ fun ListItem(
         }
     }
 }
+
+
+
 
 @OptIn(ExperimentalPagerApi::class)
 @Preview(showBackground = true)
