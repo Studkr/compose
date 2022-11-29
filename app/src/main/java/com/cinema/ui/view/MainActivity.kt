@@ -23,6 +23,8 @@ import com.cinema.ui.view.details.DetailsViewModel
 import com.cinema.ui.view.details.ShowDetails
 import com.cinema.ui.view.home.HomeScreen
 import com.cinema.ui.view.home.HomeViewModel
+import com.cinema.ui.view.preview.PreviewView
+import com.cinema.ui.view.preview.PreviewViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -46,8 +48,12 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreen() {
     val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = NavRouters.Home.route) {
-        composable(NavRouters.Home.route) {
+    NavHost(navController = navController, startDestination = NavRouters.PreviewScreen.route) {
+        composable(route = NavRouters.PreviewScreen.route) {
+            val viewModel = hiltViewModel<PreviewViewModel>()
+            PreviewView(viewModel = viewModel, navController = navController)
+        }
+        composable(route = NavRouters.Home.route) {
             val viewModel = hiltViewModel<HomeViewModel>()
             HomeScreen(
                 viewModel = viewModel,

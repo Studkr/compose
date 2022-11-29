@@ -23,6 +23,18 @@ fun TextTitle(text: String) {
 }
 
 @Composable
+fun TextToolBar(text: String) {
+    Text(
+        text = text,
+        modifier = Modifier.padding(start = 8.dp),
+        fontSize = 18.sp,
+        fontWeight = FontWeight.Bold,
+        color = Color.White
+    )
+}
+
+
+@Composable
 fun TextMiddle(text: String, top: Dp = 0.dp, bottom: Dp = 0.dp, start: Dp = 0.dp,end: Dp = 0.dp) {
     Text(
         text = text,
